@@ -15,10 +15,10 @@ import { UpdateAccountDto } from './dto/update-auth.dto';
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
-	// @Post('create')
-	// create(@Body() createAccountDto: CreateAccountDto) {
-	// 	return this.authService.create(createAccountDto);
-	// }
+	@Post('create')
+	create(@Body() createAccountDto: CreateAccountDto) {
+		return this.authService.createAccount(createAccountDto);
+	}
 
 	// @Get(':id')
 	// findOne(@Param('id') id: string) {
