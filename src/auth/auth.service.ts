@@ -12,9 +12,9 @@ export class AuthService {
 		private accountsRepository: Repository<AccountEntity>,
 	) {}
 
-	create(createAccountDto: CreateAccountDto) {
-		return this.accountsRepository.create(createAccountDto);
-	}
+	// create(createAccountDto: CreateAccountDto) {
+	// 	return this.accountsRepository.create(createAccountDto);
+	// }
 
 	findOne(id: number) {
 		return `This action returns a #${id} auth`;

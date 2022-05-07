@@ -19,6 +19,12 @@ import { AccountEntity } from './auth/entities/account.entity';
 			database: 'd8qbmb312d5hl6',
 			entities: [AccountEntity],
 			synchronize: true,
+			ssl: true,
+			extra: {
+				ssl: {
+					rejectUnauthorized: false,
+				},
+			},
 		}),
 		// RouterModule.register([
 		// 	{

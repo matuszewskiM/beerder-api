@@ -11,24 +11,24 @@ import { AuthService } from './auth.service';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-auth.dto';
 
-@Controller('auth')
+@Controller('account')
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
-	@Post()
-	create(@Body() createAccountDto: CreateAccountDto) {
-		return this.authService.create(createAccountDto);
-	}
+	// @Post('create')
+	// create(@Body() createAccountDto: CreateAccountDto) {
+	// 	return this.authService.create(createAccountDto);
+	// }
 
 	// @Get(':id')
 	// findOne(@Param('id') id: string) {
 	//   return this.authService.findOne(+id);
 	// }
 
-	// @Get()
-	// findAll() {
-	//   return this.authService.findAll();
-	// }
+	@Get('all')
+	findAll() {
+		return this.authService.findAll();
+	}
 
 	// @Patch(':id')
 	// update(@Param('id') id: string, @Body() updateAccountDto: UpdateAccountDto) {

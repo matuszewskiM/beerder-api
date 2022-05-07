@@ -16,12 +16,12 @@ export class AccountEntity {
 	@Column()
 	name!: string;
 
-	@Column()
-	hobbies!: Hobbies[];
+	@Column({ array: true })
+	hobbies!: Hobbies;
 
 	@Column()
 	description!: string;
 
-	@Column()
-	alcohols!: Alcohols[];
+	@Column({ array: true })
+	alcohols!: Alcohols;
 }
