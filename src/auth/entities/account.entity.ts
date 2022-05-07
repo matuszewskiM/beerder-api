@@ -2,10 +2,10 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { Alcohols } from '../enums/alcohols.enum';
 import { Hobbies } from '../enums/hobbies.enum';
 
-@Entity({ name: 'users' })
+@Entity({ name: 'accounts' })
 export class AccountEntity {
 	@PrimaryGeneratedColumn()
-	id!: number;
+	id: number;
 
 	@Column()
 	login!: string;

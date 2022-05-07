@@ -6,7 +6,14 @@ import {
 	Patch,
 	Param,
 	Delete,
+	HttpException,
+	HttpStatus,
+	ConflictException,
+	Res,
+	UseFilters,
+	Catch,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-auth.dto';
@@ -16,8 +23,22 @@ export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
 	@Post('create')
-	create(@Body() createAccountDto: CreateAccountDto) {
-		return this.authService.createAccount(createAccountDto);
+	async create(
+		@Body() createAccountDto: CreateAccountDto,
+		@Res() res: Response,
+	) {
+		const result = await this.authService.findOne(createAccountDto.login);
+		if (result) {
+			const exception = new ConflictException();
+			throw exception;
+		}
+
+		try {
+			await this.authService.createAccount(createAccountDto).then();
+			return;
+		} catch (err) {
+			return err;
+		}
 	}
 
 	// @Get(':id')

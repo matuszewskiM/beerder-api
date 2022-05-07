@@ -26,12 +26,6 @@ import { AccountEntity } from './auth/entities/account.entity';
 				},
 			},
 		}),
-		// RouterModule.register([
-		// 	{
-		// 		path: 'account',
-		// 		module: AuthModule,
-		// 	},
-		// ]),
 	],
 	controllers: [AppController],
 	providers: [AppService],
