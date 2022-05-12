@@ -1,17 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
 import {
 	IsAlpha,
 	IsAlphanumeric,
 	IsArray,
-	IsEmpty,
 	IsEnum,
-	IsIn,
 	MaxLength,
 	MinLength,
-	ValidateNested,
 } from 'class-validator';
 import { Alcohols } from '../enums/alcohols.enum';
+import { City } from '../enums/city.enum';
 import { Hobbies } from '../enums/hobbies.enum';
 
 export class CreateAccountDto {
@@ -70,4 +67,8 @@ export class CreateAccountDto {
 	@IsArray()
 	@IsEnum(Alcohols, { each: true })
 	alcohols: Alcohols;
+
+	@ApiProperty()
+	@IsEnum(City)
+	city: City;
 }
