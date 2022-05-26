@@ -86,6 +86,20 @@ export class AuthController {
 		}
 	}
 
+	@UseGuards(JwtAuthGuard)
+	@Post('user/accept/:id')
+	async accept(@Request() req, @Param('id') id: number) {
+		const acceptionStatus = await this.authService.acceptUser(
+			req.user.id,
+			id,
+		);
+		if (acceptionStatus) {
+			return;
+		} else {
+			throw new UnprocessableEntityException();
+		}
+	}
+
 	// @Patch(':id')
 	// update(@Param('id') id: string, @Body() updateAccountDto: UpdateAccountDto) {
 	//   return this.authService.update(+id, updateAccountDto);

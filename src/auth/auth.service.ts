@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-auth.dto';
 import { AccountEntity } from './entities/account.entity';
-import { Repository, Connection, Not } from 'typeorm';
+import { Repository, Connection } from 'typeorm';
 import { IV } from './consts/iv.const';
 import { promisify } from 'util';
 import { createCipheriv, scrypt } from 'crypto';
@@ -75,25 +75,56 @@ export class AuthService {
 	async findRandom(searcherId: number) {
 		const searcher = await this.accountsRepository.findOne(searcherId);
 		if (!searcher) return null;
-		const matchingUser = await this.accountsRepository.findOne({
-			where: {
-				id: Not(searcher.id),
-				city: searcher.city,
-				whitelist: [searcher.id],
-			},
-		});
+		console.log(searcherId);
+		const idParsed = `${searcher.id}`;
+		const matchingUser = await this.accountsRepository
+			.createQueryBuilder('accounts')
+			.where('id != :searcherId', { searcherId: searcher.id })
+			.andWhere('city = :searcherCity', { searcherCity: idParsed })
+			.andWhere(`whitelist @> '{${searcherId}}'`, {
+				searcherId: searcher.id,
+			})
+			.andWhere('not id = any(:blacklist)', {
+				blacklist: searcher.blacklist,
+			})
+			.andWhere('not id = any(:whitelist)', {
+				whitelist: searcher.whitelist,
+			})
+			.getOne();
+		console.log('tutaj');
+		// const matchingUser = await this.accountsRepository.findOne({
+		// 	where: {
+		// 		id: Not(searcher.id),
+		// 		city: searcher.city,
+		// 		whitelist: Cont(searcher.id),
+		// 	},
+		// });
 
 		if (matchingUser) {
 			return matchingUser;
 		}
 
-		const randomUser = await this.accountsRepository.findOne({
-			where: {
-				id: Not(searcher.id),
-				city: searcher.id,
-				blacklist: Not([searcher.id]),
-			},
-		});
+		// const randomUser = await this.accountsRepository.findOne({
+		// 	where: {
+		// 		id: Not(searcher.id),
+		// 		city: searcher.id,
+		// 		blacklist: Not(ArrayContains(searcher.id)),
+		// 	},
+		// });
+		const randomUser = await this.accountsRepository
+			.createQueryBuilder('accounts')
+			.where('id != :searcherId', { searcherId: searcher.id })
+			.andWhere('city = :searcherCity', { searcherCity: searcher.city })
+			.andWhere(`not :searcherId = any(blacklist)`, {
+				searcherId: searcher.id,
+			})
+			.andWhere('not id = any(:blacklist)', {
+				blacklist: searcher.blacklist,
+			})
+			.andWhere('not id = any(:whitelist)', {
+				whitelist: searcher.whitelist,
+			})
+			.getOne();
 
 		if (randomUser) {
 			return randomUser;
@@ -132,6 +163,30 @@ export class AuthService {
 
 			return this.accountsRepository
 				.update(rejector.id, rejector)
+				.then(() => true)
+				.catch((err) => {
+					// console.log(err);
+					return false;
+				});
+		}
+	}
+
+	public async acceptUser(acceptorId: number, acceptedId: number) {
+		if (acceptorId === acceptedId) return false;
+		const acceptor = await this.accountsRepository.findOne(acceptorId);
+		const acceptedUser = await this.accountsRepository.findOne(acceptedId);
+
+		if (acceptedUser) {
+			acceptor.whitelist = acceptor.blacklist.filter(
+				(id) => id !== acceptedId,
+			);
+			console.log(acceptor.whitelist);
+			console.log(acceptedId),
+				console.log([...acceptor.whitelist, acceptedId]);
+			acceptor.whitelist = [...acceptor.blacklist, acceptedId];
+
+			return this.accountsRepository
+				.update(acceptor.id, acceptor)
 				.then(() => true)
 				.catch((err) => {
 					// console.log(err);
