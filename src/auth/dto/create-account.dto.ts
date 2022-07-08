@@ -1,27 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-	IsAlpha,
-	IsAlphanumeric,
-	IsArray,
-	IsEnum,
-	MaxLength,
-	MinLength,
-} from 'class-validator';
-import { Alcohols } from '../enums/alcohols.enum';
-import { City } from '../enums/city.enum';
-import { Hobbies } from '../enums/hobbies.enum';
+import { IsAlphanumeric, MaxLength, MinLength } from 'class-validator';
 
 export class CreateAccountDto {
-	@ApiProperty({
-		description: 'Must be unique and alphanumeric',
-		minLength: 8,
-		maxLength: 16,
-	})
-	@IsAlphanumeric()
-	@MinLength(8)
-	@MaxLength(16)
-	login: string;
-
 	@ApiProperty({
 		description: 'Must be alphanumeric',
 		minLength: 8,
@@ -37,38 +17,8 @@ export class CreateAccountDto {
 		minLength: 3,
 		maxLength: 16,
 	})
-	@IsAlpha()
+	@IsAlphanumeric()
 	@MinLength(3)
 	@MaxLength(16)
-	name: string;
-
-	@ApiProperty({
-		enum: Hobbies,
-		isArray: true,
-		minItems: 1,
-	})
-	@IsArray()
-	@IsEnum(Hobbies, { each: true })
-	hobbies: Hobbies;
-
-	@ApiProperty({
-		minLength: 15,
-		maxLength: 100,
-	})
-	@MinLength(15)
-	@MaxLength(100)
-	description: string;
-
-	@ApiProperty({
-		enum: Alcohols,
-		isArray: true,
-		minItems: 1,
-	})
-	@IsArray()
-	@IsEnum(Alcohols, { each: true })
-	alcohols: Alcohols;
-
-	@ApiProperty()
-	@IsEnum(City)
-	city: City;
+	nickname: string;
 }

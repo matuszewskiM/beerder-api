@@ -1,30 +1,46 @@
 import { Module } from '@nestjs/common';
-import { RouterModule } from '@nestjs/core';
+import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { SECRET } from './auth/consts/secret.const';
 import { AccountEntity } from './auth/entities/account.entity';
+import { JwtStrategy } from './auth/jwt.strategy';
+import { CommentsModule } from './comments/comments.module';
+import { PostsModule } from './posts/posts.module';
+import { Comment } from './comments/entities/comment.entity';
+import { Post } from './posts/entities/post.entity';
+import { Category } from './shared/entities/category.entity';
+import { MulterModule } from '@nestjs/platform-express';
+import { ServeStaticModule } from '@nestjs/serve-static/dist/serve-static.module';
+import { join } from 'path';
 
 @Module({
 	imports: [
 		AuthModule,
+		JwtModule.register({
+			secret: SECRET,
+			signOptions: { expiresIn: '6000000s' },
+		}),
+		JwtStrategy,
 		TypeOrmModule.forRoot({
 			type: 'postgres',
-			host: 'ec2-54-75-184-144.eu-west-1.compute.amazonaws.com',
+			host: '127.0.0.1',
 			port: 5432,
-			username: 'bxsnhzzezoemqs',
-			password:
-				'b4b4be6bf0a4a0330b85c805569d21a200baee3a570dccbe43986cbc83c373f3',
-			database: 'd8qbmb312d5hl6',
-			entities: [AccountEntity],
+			username: 'postgres',
+			password: 'mikolaj00',
+			database: 'meme-site-db',
+			entities: [AccountEntity, Comment, Post, Category],
 			synchronize: true,
-			ssl: true,
-			extra: {
-				ssl: {
-					rejectUnauthorized: false,
-				},
-			},
+		}),
+		MulterModule.register({
+			dest: './images',
+		}),
+		CommentsModule,
+		PostsModule,
+		ServeStaticModule.forRoot({
+			rootPath: join(__dirname, '..', 'images'),
 		}),
 	],
 	controllers: [AppController],
