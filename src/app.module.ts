@@ -3,18 +3,19 @@ import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
-import { SECRET } from './auth/consts/secret.const';
-import { AccountEntity } from './auth/entities/account.entity';
-import { JwtStrategy } from './auth/jwt.strategy';
-import { CommentsModule } from './comments/comments.module';
-import { PostsModule } from './posts/posts.module';
-import { Comment } from './comments/entities/comment.entity';
-import { Post } from './posts/entities/post.entity';
-import { Category } from './shared/entities/category.entity';
+import { AuthModule } from './modules/auth/auth.module';
+import { SECRET } from './modules/auth/consts/secret.const';
+import { AccountEntity } from './database/entities/account.entity';
+import { JwtStrategy } from './modules/auth/jwt.strategy';
+import { CommentsModule } from './modules/comments/comments.module';
+import { PostsModule } from './modules/posts/posts.module';
+import { Comment } from './database/entities/comment.entity';
+import { Post } from './database/entities/post.entity';
+import { Category } from './database/entities/category.entity';
 import { MulterModule } from '@nestjs/platform-express';
 import { ServeStaticModule } from '@nestjs/serve-static/dist/serve-static.module';
 import { join } from 'path';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
 	imports: [
@@ -24,26 +25,18 @@ import { join } from 'path';
 			signOptions: { expiresIn: '6000000s' },
 		}),
 		JwtStrategy,
-		TypeOrmModule.forRoot({
-			type: 'postgres',
-			host: '127.0.0.1',
-			port: 5432,
-			username: 'postgres',
-			password: 'mikolaj00',
-			database: 'meme-site-db',
-			entities: [AccountEntity, Comment, Post, Category],
-			synchronize: true,
-		}),
+		DatabaseModule,
 		MulterModule.register({
 			dest: './images',
 		}),
 		CommentsModule,
 		PostsModule,
 		ServeStaticModule.forRoot({
-			rootPath: join(__dirname, '..', 'images'),
+			rootPath: join(__dirname, '..', 'uploads'),
+			serveRoot: '/uploads'
 		}),
 	],
 	controllers: [AppController],
 	providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
