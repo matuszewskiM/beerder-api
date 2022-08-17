@@ -23,6 +23,7 @@ import { Repository } from 'typeorm';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from '@nestjs/passport';
 import { diskStorage } from 'multer';
+import { Sorting } from './types/sorting.enum';
 
 @Controller('posts')
 export class PostsController {
@@ -75,16 +76,18 @@ export class PostsController {
 		return this.postsService.findOne(id, req?.user?.id);
 	}
 
+
+
 	@UseGuards(AuthGuard(['jwt', 'anonymous']))
 	@Get()
 	findAll(
 		@Req() req,
+		@Query('page') page: number,
+		@Query('pageSize') pageSize: number,
+		@Query('sorting') sorting: Sorting,
 		@Query('categoryId') categoryId?: number,
-		@Query('page') page?: number,
-		@Query('pageSize') pageSize?: number,
-		@Query('id') id?: number
 	) {
-		return this.postsService.findAll({ categoryId, page, pageSize, id: req?.user?.id });
+		return this.postsService.findAll({ categoryId, page, pageSize, id: req?.user?.id, sorting });
 	}
 
 	@Post('create-categories')

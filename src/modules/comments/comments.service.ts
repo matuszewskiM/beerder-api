@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthService } from 'src/modules/auth/auth.service';
 import { PostsService } from 'src/modules/posts/posts.service';
@@ -23,7 +23,7 @@ export class CommentsService {
 		try {
 			const post = await this.postService.findOne(postId);
 			const author = await this.authService.findById(authorId);
-			if (post && author) {
+			if (!(post instanceof BadRequestException) && !(author instanceof BadRequestException)) {
 				const comment = new Comment();
 				comment.author = author;
 				comment.post = post;
@@ -33,7 +33,7 @@ export class CommentsService {
 			}
 			return null;
 		} catch {
-			return null;
+			return new BadRequestException();
 		}
 	}
 
@@ -71,11 +71,10 @@ export class CommentsService {
 					.leftJoinAndMapOne("comment.isLiked", "comment.upvoters", "user", "user.id = :authorId", { authorId })
 					.getOne();
 			}
-			console.log('dsds')
-			return null;
+			return new BadRequestException();
 		} catch (err) {
 			console.log(err)
-			return null;
+			return new BadRequestException();
 		}
 	}
 }

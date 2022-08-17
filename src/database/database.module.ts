@@ -15,7 +15,7 @@ import { Post } from "./entities/post.entity"
             host: '127.0.0.1',
             port: 5432,
             username: 'postgres',
-            password: 'postgres',
+            password: 'hashupit2021!',
             database: 'test',
             entities: [AccountEntity, Comment, Post, Category],
             synchronize: true,

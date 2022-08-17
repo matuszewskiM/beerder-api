@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { AccountEntity } from '../../database/entities/account.entity';
@@ -20,22 +20,32 @@ export class AuthService {
 
 	async createAccount(
 		createAccountDto: CreateAccountDto,
-	): Promise<AccountEntity> {
-		const account = new AccountEntity();
-		account.nickname = createAccountDto.nickname;
-		account.password = await this.encryptPassword(
-			createAccountDto.password,
-		);
+	) {
+		try {
+			const account = new AccountEntity();
+			account.nickname = createAccountDto.nickname;
+			account.password = await this.encryptPassword(
+				createAccountDto.password,
+			);
 
-		return this.accountsRepository.save(account);
+			return this.accountsRepository.save(account);
+		}
+		catch (err) {
+			return new BadRequestException()
+		}
 	}
 
 	async findOne(nickname: string) {
-		const user = await this.accountsRepository.findOne({
-			nickname: nickname,
-		});
+		try {
+			const user = await this.accountsRepository.findOne({
+				nickname: nickname,
+			});
 
-		return user;
+			return user;
+		}
+		catch (err) {
+			return new BadRequestException()
+		}
 	}
 
 	async findById(id: number) {
@@ -43,24 +53,37 @@ export class AuthService {
 	}
 
 	async login(loginDto: LoginDto) {
-		const encryptedPassword = await this.encryptPassword(loginDto.password);
-		const user = await this.accountsRepository.findOne({
-			nickname: loginDto.nickname,
-			password: encryptedPassword,
-		});
+		try {
+			const encryptedPassword = await this.encryptPassword(loginDto.password);
+			const user = await this.accountsRepository.findOne({
+				nickname: loginDto.nickname,
+				password: encryptedPassword,
+			});
 
-		if (user) {
-			const payload = { nickname: user.nickname, id: user.id };
-			const accessToken = this.jwtSercice.sign(payload);
-			return { ...payload, accessToken };
-		} else {
-			return null;
+			if (user) {
+				const payload = { nickname: user.nickname, id: user.id };
+				const accessToken = this.jwtSercice.sign(payload);
+				return { ...payload, accessToken };
+			} else {
+				return null;
+			}
+		}
+		catch (err) {
+			return new BadRequestException()
 		}
 	}
 
 	async validateUser(nickname: string, id: number) {
-		const user = await this.findOne(nickname);
-		return user.id === id ? { nickname: user.nickname, id: user.id } : null;
+		try {
+			const user = await this.findOne(nickname);
+			if (user instanceof AccountEntity) {
+				return user.id === id ? { nickname: user.nickname, id: user.id } : null;
+			}
+		}
+		catch (err) {
+			return new BadRequestException()
+		}
+
 	}
 
 	async findAll(): Promise<AccountEntity[]> {
